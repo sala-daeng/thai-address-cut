@@ -1,0 +1,26 @@
+{
+  "name": "thai-address-cut",
+  "version": "1.0.0",
+  "description": "Library for split the address in Thailand for Thai and English languages.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sala-daeng/thai-address-cut.git"
+  },
+  "keywords": [
+    "Thai",
+    "Address",
+    "Cut",
+    "Split",
+    "English"
+  ],
+  "author": "Sala Daeng Company Limited",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sala-daeng/thai-address-cut/issues"
+  },
+  "homepage": "https://github.com/sala-daeng/thai-address-cut#readme"
+}

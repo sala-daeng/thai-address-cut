@@ -1,4 +1,5 @@
-const addressCut = require('./index')
+const thaiAddressCut = require('thai-address-cut')
+
 lstDemo = [
     '13/1 Moo5.Kingkawa Road, Bang Kaeo, Bangplee, Smutprakan 10540',
     '13/1 Moo5.Kingkawa Road, Yi San, Amphawa,  Samut Songkhram 75540',
@@ -18,11 +19,12 @@ lstDemo = [
     'Thai Diamond Industry Co.,Ltd.156 Moo 7 Suksawat Tel : 02-4272252,Khet Rat Burana Province,Khwang Bang Pakok,Bangkok,10140',
     'Thai Diamond Industry Co.,Ltd.156 Moo 7 Suksawat Tel : 02-427-2252,Khwang Bang Pakok,Khet Rat Burana Province,Bangkok,10140',
     '13/1 Moo5.Kingkawa Road, Bang Kaeo, Bangplee, Smutprakan 10540',
-    '13 King Kaeo Rd, Racha Tewa, Bang Phli District, Samut Prakan 10540'
+    '13 King Kaeo Rd, Racha Tewa, Bang Phli District, Samut Prakan 10540',
+    '89/279 SupalaiVille LakSi-Donmueng, Soi. Changargardutid5, Changagardutid Road, DonMeuang, DonMeuang, Bangkok, 10210'
  
 ]
-
-for(var i = 0 ; i < lstDemo.length ; i++){
-    console.log(addressCut.cut(lstDemo[i], true))
-    console.log('\n')
-}
+console.log(thaiAddressCut.cut('89/279 SupalaiVille LakSi-Donmueng, Soi. Changargardutid5, Changagardutid Road, DonMeuang, DonMeuang, Bangkok, 10210',true))
+// for(var i = 0 ; i < lstDemo.length ; i++){
+//     console.log(thaiAddressCut.cut(lstDemo[i], true))
+//     console.log('\n')
+// }

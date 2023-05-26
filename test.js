@@ -23,6 +23,6 @@ lstDemo = [
 ]
 
 for(var i = 0 ; i < lstDemo.length ; i++){
-    console.log(addressCut.cutAddress(lstDemo[i], true))
+    console.log(addressCut.cut(lstDemo[i], true))
     console.log('\n')
 }

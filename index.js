@@ -9,14 +9,9 @@ function swapItem(arr){
 }
 function cleanData(txt){
     let newTxt = txt
-    const phonePattern1 = /(0\d{2})(\d{7}|-\d{7}|-\d{3}-\d{4})/;
-    const phonePattern2 = /(0\d{1})(\d{7}|-\d{7}|-\d{3}-\d{4})/;
-
     newTxt = newTxt.replace(/(district|District|Tambol|Province|Khwang|Amphur|Khet|Tel|:|T\.|A\.)/g,'')
     newTxt = newTxt.replace(/,+/g,',')
     newTxt = newTxt.replace(/,$/, '');
-    newTxt = newTxt.replace(phonePattern1, '').trim();
-    newTxt = newTxt.replace(phonePattern2, '').trim();
     return newTxt
 }
 
@@ -118,19 +113,31 @@ function editDistance(str1, str2) {
 
 
 module.exports = {
-    cutAddress: (address, fullSearch = false) => {
+    cut: (address, fullSearch = false) => {
         console.log(address)
     
         let remainingTxt = address;
         const postPattern = /\b\d{5}\b/;
         const postMatched = address.match(postPattern);
+
+        const phonePattern = /((0\d{2})(\d{7}|-\d{7}|-\d{3}-\d{4})|(0\d{1})(\d{7}|-\d{7}|-\d{3}-\d{4}))/;
+        const phoneMatched  = address.match(phonePattern)
+
+        let phone = '';
         let postCode = '';
         
         if (postMatched) {
             [postCode] = postMatched
         }
+        if(phoneMatched){
+            [phone] = phoneMatched
+        }
+
         remainingTxt = remainingTxt.replace(postCode, '').trim();
+        remainingTxt = remainingTxt.replace(phone, '').trim();
         remainingTxt =cleanData(remainingTxt)
+        
+
         //console.log(postCode)
         let wordlist = remainingTxt.split(',').map(word => word.trim());
         wordlist = wordlist.filter(element => element != null && element !== undefined && element !== "" && element != "." );
@@ -228,7 +235,8 @@ module.exports = {
             Province: provinceTxt,
             City: cityTxt,
             Tambon: tambonTxt,
-            PostCodeCode: postCode
+            PostCodeCode: postCode,
+            PhoneNumber: phone,
         }
         
         

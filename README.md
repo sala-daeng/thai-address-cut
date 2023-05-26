@@ -1,7 +1,7 @@
 # thai-address-cut
-credit :
-https://github.com/peerasak-u/thai-address-splitter
-credit file json :
-https://www.thepexcel.com/thailand-tambon-database/
-https://github.com/ThepExcel/download
-https://github.com/ThepExcel/download/blob/master/ThepExcel-Thailand-Tambon.xlsx
+credit : <br />
+https://github.com/peerasak-u/thai-address-splitter <br />
+credit file json : <br />
+https://www.thepexcel.com/thailand-tambon-database/ <br />
+https://github.com/ThepExcel/download <br />
+https://github.com/ThepExcel/download/blob/master/ThepExcel-Thailand-Tambon.xlsx <br />

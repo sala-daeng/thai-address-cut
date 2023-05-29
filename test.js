@@ -23,8 +23,11 @@ lstDemo = [
     '89/279 SupalaiVille LakSi-Donmueng, Soi. Changargardutid5, Changagardutid Road, DonMeuang, DonMeuang, Bangkok, 10210'
  
 ]
-console.log(thaiAddressCut.cut('89/279 SupalaiVille LakSi-Donmueng, Soi. Changargardutid5, Changagardutid Road, DonMeuang, DonMeuang, Bangkok, 10210',true))
-// for(var i = 0 ; i < lstDemo.length ; i++){
-//     console.log(thaiAddressCut.cut(lstDemo[i], true))
-//     console.log('\n')
-// }
+
+
+for (var i = 0; i < lstDemo.length; i++) {
+    console.log(thaiAddressCut.cut(lstDemo[i]),true)
+    console.log('\n')
+}
+
+

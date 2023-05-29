@@ -2,13 +2,18 @@
 
 ### ** npm i thai-address-cut **
 ```js
-import thaiAddressCut from ‘thai-address-cut’ <br />
-or <br />
-const thaiAddressCut = require(‘thai-address-cut’) <br />
-
-how to use : <br />
-const output = thaiAddressCut.cut({address(string)}, fullSearch(boolean : default = false)) <br />
+import thaiAddressCut from ‘thai-address-cut’ 
 ```
+or 
+```js
+const thaiAddressCut = require(‘thai-address-cut’) 
+```
+
+how to use 
+```js
+const output = thaiAddressCut.cut({address(string)}, fullSearch(boolean : default = true))
+```
+
 credit : <br />
 https://github.com/peerasak-u/thai-address-splitter <br />
 credit file json : <br />

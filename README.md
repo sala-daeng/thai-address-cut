@@ -11,7 +11,11 @@ const thaiAddressCut = require(‘thai-address-cut’)
 
 how to use 
 ```js
-const output = thaiAddressCut.cut({address(string)}, fullSearch(boolean : default = true))
+const output = thaiAddressCut.cut( address(string), fullSearch(boolean : default = true))
+```
+Exaple:
+```js
+const output = addressCut.cut('123 suphalai ville laksi donmoung, soi changargardutid5, changargardutid road, donmaeung, donmeung, bangkok, 10210')
 ```
 
 credit : <br />

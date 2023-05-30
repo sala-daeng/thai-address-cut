@@ -148,7 +148,7 @@ function editDistance(str1, str2, lang) {
   return costs[s2.length]
 }
 function removePrefix(data){
-    return data.replace(/^(khet)|^(เขต)/i, '').trim()
+    return data.replace(/^(khet)|^(เขต)/i, '').replace(/\*$/,'').trim()
 }
 module.exports = {
   cut: (address, fullSearch = true) => {
@@ -185,7 +185,7 @@ module.exports = {
       remainingTxt = remainingTxt.replace(nameTxt, '').replace('|', '').trim()
     }
 
-    const regexLang = RegExp(/^[a-zA-Z0-9\,\.\(\)\:\s]*$/)
+    const regexLang = RegExp(/^[!@#$%\s\^&\*\(\)_+=\[\]\\\{\}|;\':\"\,-\.\/a-zA-Z0-9]+$/);
 
     let provinceTxt = ''
     let districtTxt = ''
@@ -302,9 +302,9 @@ module.exports = {
             roadTxt = word
             roadTxt = roadTxt.replace(/(road)$/i,'').trim()
           }
-          if(/^(soi)/i.test(word.toLowerCase())){
+          if(/^(soi\.*)/i.test(word.toLowerCase())){
             soiTxt = word
-            soiTxt = soiTxt.replace(/^(soi)/i,'').trim()
+            soiTxt = soiTxt.replace(/^(soi\.*)/i,'').trim()
           }
           else if( /^(s\.)/i.test(word.toLowerCase()) ){
             soiTxt = word
@@ -317,7 +317,10 @@ module.exports = {
     }
     else{//------------------TH-------------------------
         remainingTxt = cleanData(remainingTxt,'TH')
+        
 
+
+        //console.log('TH')
         //console.log(postCode)
         wordlist = remainingTxt.split(' ').map((word) => word.trim())
         wordlist = wordlist.filter(
@@ -406,6 +409,7 @@ module.exports = {
 
         
         wordlist.forEach((word) => {
+            
           if(word.match(/(หมู่\s*\d+)|(ม.\d+)/i)){
             [mooTxt] = word.match(/หมู่\s*\d+|(ม\.\d+)/i)
             let indextTemp = wordlist.indexOf(word)
@@ -449,7 +453,7 @@ module.exports = {
         addressDetail: wordlist.join(' '),
         province: provinceTxt,
         district: removePrefix(districtTxt),
-        subdistrict: subdistrictTxt,
+        subdistrict: removePrefix(subdistrictTxt),
         postCodeCode: postCode,
         phoneNumber: phone,
     }

@@ -1,4 +1,4 @@
-const thaiAddressCut = require('thai-address-cut')
+const thaiAddressCut = require('index.js')
 
 lstDemo = [
     '13/1 Moo5.Kingkawa Road, Bang Kaeo, Bangplee, Smutprakan 10540',

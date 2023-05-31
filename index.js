@@ -22,9 +22,8 @@ function cleanData(txt,lang) {
 
 function removeItem(arr, keyword) {
   if (keyword != '') {
-    arr,(indexOf = (arr, q) => arr.findIndex((item) => q.toLowerCase() === item.toLowerCase()))
-    arr.pop(indexOf(arr, keyword))
-    return arr
+    const keywordPattern = new RegExp(keyword, 'i');
+    return arr.filter(obj => !keywordPattern.test(obj));
   }
   return arr
 }

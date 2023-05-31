@@ -1,5 +1,4 @@
-const thaiAddressCut = require('index.js')
-
+const thaiAddressCut = require('thai-address-cut') 
 lstDemo = [
     '13/1 Moo5.Kingkawa Road, Bang Kaeo, Bangplee, Smutprakan 10540',
     '13/1 Moo5.Kingkawa Road, Yi San, Amphawa,  Samut Songkhram 75540',
@@ -26,7 +25,7 @@ lstDemo = [
 
 
 for (var i = 0; i < lstDemo.length; i++) {
-    console.log(thaiAddressCut.cut(lstDemo[i]),true)
+    console.log(thaiAddressCut.cut(lstDemo[i]))
     console.log('\n')
 }
 

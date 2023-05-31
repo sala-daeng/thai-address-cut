@@ -36,7 +36,7 @@ function findSimilarObj(objs, value, lang) {
       for (let obj in objs) {
         //console.log(x)
         if (regexLang.test(obj)) {
-          tempSim = similarity(obj, value, lang)
+          let tempSim = similarity(obj, value, lang)
           if (tempSim > maxSim) {
             maxSim = tempSim
             newObj = obj
@@ -46,7 +46,7 @@ function findSimilarObj(objs, value, lang) {
   }
   else{
     for (let obj in objs) {
-        tempSim = similarity(obj, value, lang)
+        let tempSim = similarity(obj, value, lang)
         if (tempSim > maxSim) {
             maxSim = tempSim
             newObj = obj
@@ -189,7 +189,9 @@ module.exports = {
     let provinceTxt = ''
     let districtTxt = ''
     let subdistrictTxt = ''
-
+    let roadTxt = ''
+    let soiTxt = ''
+    let mooTxt = ''
 
     let provinceValue
     let districtValue
@@ -280,11 +282,7 @@ module.exports = {
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
     
-        //Addition Option
-        roadTxt = ''
-        soiTxt = ''
-        mooTxt = ''
-        
+        //Addition Option        
         wordlist.forEach((word) => {
           if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){
             [mooTxt] = word.match(/Moo\s*\d+|(M.\d+)/i)
@@ -317,8 +315,6 @@ module.exports = {
     else{//------------------TH-------------------------
         remainingTxt = cleanData(remainingTxt,'TH')
         
-
-
         //console.log('TH')
         //console.log(postCode)
         wordlist = remainingTxt.split(' ').map((word) => word.trim())
@@ -402,11 +398,6 @@ module.exports = {
         wordlist = removeItem(wordlist, subdistrictTempTxt)
     
         //Addition Option
-        roadTxt = ''
-        soiTxt = ''
-        mooTxt = ''
-
-        
         wordlist.forEach((word) => {
             
           if(word.match(/(หมู่\s*\d+)|(ม.\d+)/i)){

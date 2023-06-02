@@ -10,10 +10,10 @@ function swapItem(arr) {
 function cleanData(txt,lang) {
     let newTxt = txt
     if(lang === 'EN'){
-        newTxt = newTxt.replace(/(district|District|Tambol|Province|Khwang|Amphur|Khet|Tel|:|T\.|A\.)/g, '') 
+      newTxt = newTxt.replace(/(district|District|Tambol|Province|Khwang|Amphur|Khet|Tel|:|T\.|A\.|\b(thailand)$|\b(th)$)/gi, '')
     }
     else{
-        newTxt = newTxt.replace(/(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่)/g, '')
+      newTxt = newTxt.replace(/(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่)/g, '')
     }
     newTxt = newTxt.replace(/,+/g, ',')
     newTxt = newTxt.replace(/,$/, '')
@@ -22,8 +22,8 @@ function cleanData(txt,lang) {
 
 function removeItem(arr, keyword) {
   if (keyword != '') {
-    const keywordPattern = new RegExp(keyword, 'i');
-    return arr.filter(obj => !keywordPattern.test(obj));
+    const keyPattern = new RegExp(keyword, 'i');
+    return arr.filter(obj => !keyPattern.test(obj));
   }
   return arr
 }
@@ -201,7 +201,7 @@ module.exports = {
 
     if(regexLang.test(remainingTxt)){//------------------EN-------------------------
         remainingTxt = cleanData(remainingTxt,'EN')
-        //console.log('ENG')
+        console.log('ENG')
         wordlist = remainingTxt.split(',').map((word) => word.trim())
         wordlist = wordlist.filter(
           (element) =>
@@ -282,7 +282,9 @@ module.exports = {
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
     
-        //Addition Option        
+        //Addition Option
+
+        
         wordlist.forEach((word) => {
           if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){
             [mooTxt] = word.match(/Moo\s*\d+|(M.\d+)/i)
@@ -293,29 +295,33 @@ module.exports = {
           }
           if (/(rd)$/i.test(word.toLowerCase())){
             roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
             roadTxt = roadTxt.replace(/(rd)$/i,'').trim()
           }
           else if(/(road)$/i.test(word.toLowerCase()) ){
             roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
             roadTxt = roadTxt.replace(/(road)$/i,'').trim()
           }
           if(/^(soi\.*)/i.test(word.toLowerCase())){
             soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
             soiTxt = soiTxt.replace(/^(soi\.*)/i,'').trim()
           }
           else if( /^(s\.)/i.test(word.toLowerCase()) ){
             soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
             soiTxt = soiTxt.replace(/^(s\.)/i,'').trim()
           }
         })
     
-        wordlist = removeItem(wordlist, roadTxt)
-        wordlist = removeItem(wordlist, soiTxt)
+        
+       
     }
     else{//------------------TH-------------------------
         remainingTxt = cleanData(remainingTxt,'TH')
         
-        //console.log('TH')
+        console.log('TH')
         //console.log(postCode)
         wordlist = remainingTxt.split(' ').map((word) => word.trim())
         wordlist = wordlist.filter(
@@ -410,25 +416,29 @@ module.exports = {
 
           if (/^(ถนน)/.test(word.toLowerCase())){
             roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
             roadTxt = roadTxt.replace(/^(ถนน)/,'').trim()
           }
           else if(/^(ถ\.)/.test(word.toLowerCase()) ){
             roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
             roadTxt = roadTxt.replace(/^(ถ\.)/,'').trim()
           }
 
           if(/^(ซอย)/.test(word)){
             soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
             soiTxt = soiTxt.replace(/^(ซอย)/,'').trim()
           }
           else if( /^(ซ\.)/.test(word.toLowerCase()) ){
             soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
             soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
           }
         })
     
-        wordlist = removeItem(wordlist, roadTxt)
-        wordlist = removeItem(wordlist, soiTxt)
+
+
     }
 
     

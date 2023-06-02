@@ -1,6 +1,6 @@
 {
   "name": "thai-address-cut",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Library for split the address in Thailand for Thai and English languages.",
   "main": "index.js",
   "scripts": {

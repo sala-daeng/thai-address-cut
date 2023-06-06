@@ -17,12 +17,13 @@ function cleanData(txt,lang) {
     }
     newTxt = newTxt.replace(/,+/g, ',')
     newTxt = newTxt.replace(/,$/, '')
+    newTxt = newTxt.replace('\*','')
   return newTxt
 }
 
 function removeItem(arr, keyword) {
   if (keyword != '') {
-    const keyPattern = new RegExp(keyword, 'i');
+    const keyPattern = new RegExp(`^${keyword}$`, 'i');
     return arr.filter(obj => !keyPattern.test(obj));
   }
   return arr
@@ -53,7 +54,6 @@ function findSimilarObj(objs, value, lang) {
         }
     }
   }
-  //console.log(maxSim)
   if (maxSim > 0.6)
     return newObj
   else
@@ -61,22 +61,22 @@ function findSimilarObj(objs, value, lang) {
 }
 
 function getValueByKey(object, key, lang) {
-    if (key != null && key != undefined && object != null) {
-        //console.log(key)
-        if(lang === 'EN'){
-            const regex = RegExp(/^[a-zA-Z\s\*]/)
-            const asLowercase = key.toLowerCase().replace(/^(khet)/i, '').replace(regex, '')
-            return object[
-            Object.keys(object).find((k) =>k.toLowerCase().replace(/^(khet)/i, '').replace(regex, '').trim() === asLowercase)
-            ]
-        }
-        else{
-            return object[
-            Object.keys(object).find((k) =>k.replace(/^(เขต)/, '').trim() === key.replace(/^(เขต)/, ''))
-            ]
-        }
-    }
-    return undefined
+  if (key != null && key != undefined && object != null) {
+      //console.log(key)
+      if(lang === 'EN'){
+          const regex = RegExp(/[^a-zA-Z]/g)
+          const asLowercase = key.toLowerCase().replace(/^(khet)/i, '').replace(regex, '')
+          return object[
+          Object.keys(object).find((k) =>k.toLowerCase().replace(/^(khet)/i, '').replace(regex, '').trim() === asLowercase)
+          ]
+      }
+      else{
+          return object[
+          Object.keys(object).find((k) =>k.replace(/^(เขต)/, '').trim() === key.replace(/^(เขต)/, ''))
+          ]
+      }
+  }
+  return undefined
 }
 
 function getKeyByValue(object, value, lang) {
@@ -251,7 +251,7 @@ module.exports = {
             districtTempTxt = wordlist[wordlist.length - 1]
             districtValue = getValueByKey(district[provinceValue], districtTxt, 'EN')
           }
-    
+  
           if (wordlist.length - 2 >= 0) {
             subdistrictValue = getValueByKey(subdistrict[districtValue], wordlist[wordlist.length - 2], 'EN')
             if (subdistrictValue) {
@@ -261,7 +261,8 @@ module.exports = {
             } else if (fullSearch) {
               subdistrictTxt = findSimilarObj(subdistrict[districtValue], wordlist[wordlist.length - 2], 'EN')
               subdistrictValue = getValueByKey(subdistrict[districtValue], subdistrictTxt, 'EN')
-              if (subdistrictValue === undefined) subdistrictTxt = ''
+              if (subdistrictValue === undefined) 
+                subdistrictTxt = ''
               else {
                 subdistrictTempTxt = wordlist[wordlist.length - 2]
                 break
@@ -269,7 +270,7 @@ module.exports = {
             }
           }
     
-          if (subdistrictTxt === '' && wordlist.length > 3) {
+          if (subdistrictTxt === '' && wordlist.length >= 3) {
             i = 0
             count++
             swapItem(wordlist)
@@ -281,7 +282,7 @@ module.exports = {
     
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
-    
+
         //Addition Option
 
         
@@ -390,7 +391,7 @@ module.exports = {
             }
           }
     
-          if (subdistrictTxt === '' && wordlist.length > 3) {
+          if (subdistrictTxt === '' && wordlist.length >= 3) {
             i = 0
             count++
             swapItem(wordlist)
@@ -402,6 +403,7 @@ module.exports = {
     
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
+
     
         //Addition Option
         wordlist.forEach((word) => {
@@ -436,12 +438,8 @@ module.exports = {
             soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
           }
         })
-    
-
-
     }
 
-    
     let timeTaken = Date.now() - start;
     console.log("Total time taken : " + timeTaken + " milliseconds");
     return {

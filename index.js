@@ -452,7 +452,7 @@ module.exports = {
         province: provinceTxt,
         district: removePrefix(districtTxt),
         subdistrict: removePrefix(subdistrictTxt),
-        postCodeCode: postCode,
+        postcode: postCode,
         phoneNumber: phone,
     }
   },

@@ -445,10 +445,10 @@ module.exports = {
     return {
         name: nameTxt,
         houseNumber: houseNum,
+        addressDetail: wordlist.join(' '),
         moo: mooTxt,
         soi: soiTxt,
         road: roadTxt,
-        addressDetail: wordlist.join(' '),
         province: provinceTxt,
         district: removePrefix(districtTxt),
         subdistrict: removePrefix(subdistrictTxt),

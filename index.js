@@ -215,8 +215,38 @@ module.exports = {
             element !== '' &&
             element != '.'
         )
-        //console.log(wordlist)
-    
+        
+
+        //Addition Option
+        wordlist.forEach((word) => {
+          if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){
+            [mooTxt] = word.match(/Moo\s*\d+|(M.\d+)/i)
+            let indextTemp = wordlist.indexOf(word)
+            wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
+            word= wordlist[indextTemp].replace(mooTxt, '').trim()
+            mooTxt = mooTxt.replace(/Moo\s*|(M.)/i, '').trim()
+          }
+          if (/(rd)$/i.test(word.toLowerCase())){
+            roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
+            roadTxt = roadTxt.replace(/(rd)$/i,'').trim()
+          }
+          else if(/(road)$/i.test(word.toLowerCase()) ){
+            roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
+            roadTxt = roadTxt.replace(/(road)$/i,'').trim()
+          }
+          if(/^(soi\.*)/i.test(word.toLowerCase())){
+            soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
+            soiTxt = soiTxt.replace(/^(soi\.*)/i,'').trim()
+          }
+          else if( /^(s\.)/i.test(word.toLowerCase()) ){
+            soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
+            soiTxt = soiTxt.replace(/^(s\.)/i,'').trim()
+          }
+        })
     
         provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'EN')
     
@@ -291,41 +321,6 @@ module.exports = {
     
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
-
-        //Addition Option
-
-        
-        wordlist.forEach((word) => {
-          if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){
-            [mooTxt] = word.match(/Moo\s*\d+|(M.\d+)/i)
-            let indextTemp = wordlist.indexOf(word)
-            wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
-            word= wordlist[indextTemp].replace(mooTxt, '').trim()
-            mooTxt = mooTxt.replace(/Moo\s*|(M.)/i, '').trim()
-          }
-          if (/(rd)$/i.test(word.toLowerCase())){
-            roadTxt = word
-            wordlist = removeItem(wordlist, roadTxt)
-            roadTxt = roadTxt.replace(/(rd)$/i,'').trim()
-          }
-          else if(/(road)$/i.test(word.toLowerCase()) ){
-            roadTxt = word
-            wordlist = removeItem(wordlist, roadTxt)
-            roadTxt = roadTxt.replace(/(road)$/i,'').trim()
-          }
-          if(/^(soi\.*)/i.test(word.toLowerCase())){
-            soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
-            soiTxt = soiTxt.replace(/^(soi\.*)/i,'').trim()
-          }
-          else if( /^(s\.)/i.test(word.toLowerCase()) ){
-            soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
-            soiTxt = soiTxt.replace(/^(s\.)/i,'').trim()
-          }
-        })
-        
-       
     }
     else{//------------------TH-------------------------
         remainingTxt = cleanData(remainingTxt,'TH')
@@ -341,7 +336,40 @@ module.exports = {
             element != '.'
         )
         //console.log(wordlist)
-    
+
+        //Addition Option
+        wordlist.forEach((word) => {
+            
+          if(word.match(/(หมู่\s*\d+)|(ม.\d+)/i)){
+            [mooTxt] = word.match(/หมู่\s*\d+|(ม\.\d+)/i)
+            let indextTemp = wordlist.indexOf(word)
+            wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
+            word= wordlist[indextTemp].replace(mooTxt, '').trim()
+            mooTxt = mooTxt.replace(/หมู่\s*|(ม.)/i, '').trim()
+          }
+
+          if (/^(ถนน)/.test(word.toLowerCase())){
+            roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
+            roadTxt = roadTxt.replace(/^(ถนน)/,'').trim()
+          }
+          else if(/^(ถ\.)/.test(word.toLowerCase()) ){
+            roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
+            roadTxt = roadTxt.replace(/^(ถ\.)/,'').trim()
+          }
+
+          if(/^(ซอย)/.test(word)){
+            soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
+            soiTxt = soiTxt.replace(/^(ซอย)/,'').trim()
+          }
+          else if( /^(ซ\.)/.test(word.toLowerCase()) ){
+            soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
+            soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
+          }
+        })
     
         provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'TH')
     
@@ -406,41 +434,6 @@ module.exports = {
     
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
-
-    
-        //Addition Option
-        wordlist.forEach((word) => {
-            
-          if(word.match(/(หมู่\s*\d+)|(ม.\d+)/i)){
-            [mooTxt] = word.match(/หมู่\s*\d+|(ม\.\d+)/i)
-            let indextTemp = wordlist.indexOf(word)
-            wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
-            word= wordlist[indextTemp].replace(mooTxt, '').trim()
-            mooTxt = mooTxt.replace(/หมู่\s*|(ม.)/i, '').trim()
-          }
-
-          if (/^(ถนน)/.test(word.toLowerCase())){
-            roadTxt = word
-            wordlist = removeItem(wordlist, roadTxt)
-            roadTxt = roadTxt.replace(/^(ถนน)/,'').trim()
-          }
-          else if(/^(ถ\.)/.test(word.toLowerCase()) ){
-            roadTxt = word
-            wordlist = removeItem(wordlist, roadTxt)
-            roadTxt = roadTxt.replace(/^(ถ\.)/,'').trim()
-          }
-
-          if(/^(ซอย)/.test(word)){
-            soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
-            soiTxt = soiTxt.replace(/^(ซอย)/,'').trim()
-          }
-          else if( /^(ซ\.)/.test(word.toLowerCase()) ){
-            soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
-            soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
-          }
-        })
 
     }
 

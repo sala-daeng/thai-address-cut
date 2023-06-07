@@ -369,7 +369,7 @@ module.exports = {
             element !== '' &&
             element != '.'
         )
-        
+
         provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'TH')
     
         //province search
@@ -442,10 +442,10 @@ module.exports = {
     return {
         name: nameTxt,
         houseNumber: houseNum,
+        addressDetail: wordlist.join(' '),
         moo: mooTxt,
         soi: soiTxt,
         road: roadTxt,
-        addressDetail: wordlist.join(' '),
         province: provinceTxt,
         district: removePrefix(districtTxt),
         subdistrict: removePrefix(subdistrictTxt),

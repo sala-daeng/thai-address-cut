@@ -207,15 +207,7 @@ module.exports = {
     if(regexLang.test(remainingTxt)){//------------------EN-------------------------
         remainingTxt = cleanData(remainingTxt,'EN')
         console.log('ENG')
-        wordlist = remainingTxt.split(',').map((word) => word.trim())
-        wordlist = wordlist.filter(
-          (element) =>
-            element != null &&
-            element !== undefined &&
-            element !== '' &&
-            element != '.'
-        )
-        
+        wordlist = remainingTxt.split(',').map((word) => word.trim())        
 
         //Addition Option
         wordlist.forEach((word) => {
@@ -247,7 +239,14 @@ module.exports = {
             soiTxt = soiTxt.replace(/^(s\.)/i,'').trim()
           }
         })
-    
+
+        wordlist = wordlist.filter(
+          (element) =>
+            element != null &&
+            element !== undefined &&
+            element !== '' &&
+            element != '.'
+        )
         provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'EN')
     
         //province search
@@ -328,14 +327,6 @@ module.exports = {
         console.log('TH')
         //console.log(postCode)
         wordlist = remainingTxt.split(' ').map((word) => word.trim())
-        wordlist = wordlist.filter(
-          (element) =>
-            element != null &&
-            element !== undefined &&
-            element !== '' &&
-            element != '.'
-        )
-        //console.log(wordlist)
 
         //Addition Option
         wordlist.forEach((word) => {
@@ -370,7 +361,15 @@ module.exports = {
             soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
           }
         })
-    
+
+        wordlist = wordlist.filter(
+          (element) =>
+            element != null &&
+            element !== undefined &&
+            element !== '' &&
+            element != '.'
+        )
+        
         provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'TH')
     
         //province search

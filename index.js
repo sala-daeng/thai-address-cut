@@ -93,6 +93,8 @@ function getKeyByValue(object, value, lang) {
     }
 }
 
+
+
 function similarity(s1, s2, lang) {
   let longer = s1
   let shorter = s2
@@ -147,7 +149,10 @@ function editDistance(str1, str2, lang) {
   return costs[s2.length]
 }
 function removePrefix(data){
+  if(data != '' && data != undefined){
     return data.replace(/^(khet)|^(เขต)/i, '').replace(/\*$/,'').trim()
+  }
+  return ''
 }
 module.exports = {
   cut: (address, fullSearch = true) => {
@@ -237,11 +242,15 @@ module.exports = {
         wordlist = removeItem(wordlist, provinceTempTxt)
         //console.log(wordlist)
         console.log(provinceValue)
-    
+        
+        const regexMueng = /^(mueng|moang|meung|mueang)$/i
         let districtTempTxt = ''
         let subdistrictTempTxt = ''
         let count = 1
         for (let i = 0; i < 2 && count <= 2; i++) {
+          if(regexMueng.test(wordlist[wordlist.length - 1])){
+            wordlist[wordlist.length - 1] = wordlist[wordlist.length - 1].concat(provinceTxt)
+          }
           districtValue = getValueByKey(district[provinceValue], wordlist[wordlist.length - 1], 'EN')
           if (districtValue) {
             districtTxt = wordlist[wordlist.length - 1]
@@ -252,7 +261,7 @@ module.exports = {
             districtValue = getValueByKey(district[provinceValue], districtTxt, 'EN')
           }
   
-          if (wordlist.length - 2 >= 0) {
+          if (wordlist.length >= 2 && districtTxt != '' && districtTxt != undefined) {
             subdistrictValue = getValueByKey(subdistrict[districtValue], wordlist[wordlist.length - 2], 'EN')
             if (subdistrictValue) {
               subdistrictTxt = wordlist[wordlist.length - 2]
@@ -270,7 +279,7 @@ module.exports = {
             }
           }
     
-          if (subdistrictTxt === '' && wordlist.length >= 3) {
+          if (subdistrictTxt === '' && wordlist.length >= 2) {
             i = 0
             count++
             swapItem(wordlist)
@@ -315,7 +324,6 @@ module.exports = {
             soiTxt = soiTxt.replace(/^(s\.)/i,'').trim()
           }
         })
-    
         
        
     }
@@ -359,39 +367,34 @@ module.exports = {
         wordlist = removeItem(wordlist, provinceTempTxt)
         //console.log(wordlist)
         console.log(provinceValue)
-    
+        
+        const regexMueng = /^เมือง$/
         let districtTempTxt = ''
         let subdistrictTempTxt = ''
         let count = 1
         for (let i = 0; i < 2 && count <= 2; i++) {
+          if(regexMueng.test(wordlist[wordlist.length - 1])){
+            wordlist[wordlist.length - 1] = wordlist[wordlist.length - 1].concat(provinceTxt)
+            
+          }
           districtValue = getValueByKey(district[provinceValue], wordlist[wordlist.length - 1], 'TH')
+
           if (districtValue) {
             districtTxt = wordlist[wordlist.length - 1]
             districtTempTxt = districtTxt
-          } else if (districtValue === undefined && fullSearch) {
-            districtTxt = findSimilarObj(district[provinceValue], wordlist[wordlist.length - 1], 'TH')
-            districtTempTxt = wordlist[wordlist.length - 1]
-            districtValue = getValueByKey(district[provinceValue], districtTxt, 'TH')
-          }
-    
-          if (wordlist.length - 2 >= 0) {
+          } 
+
+          if (wordlist.length >= 2 && districtTxt != '') {
             subdistrictValue = getValueByKey(subdistrict[districtValue], wordlist[wordlist.length - 2], 'TH')
             if (subdistrictValue) {
               subdistrictTxt = wordlist[wordlist.length - 2]
               subdistrictTempTxt = subdistrictTxt
               break
-            } else if (fullSearch) {
-              subdistrictTxt = findSimilarObj(subdistrict[districtValue], wordlist[wordlist.length - 2], 'TH')
-              subdistrictValue = getValueByKey(subdistrict[districtValue], subdistrictTxt, 'TH')
-              if (subdistrictValue === undefined) subdistrictTxt = ''
-              else {
-                subdistrictTempTxt = wordlist[wordlist.length - 2]
-                break
-              }
-            }
+            } 
+
           }
     
-          if (subdistrictTxt === '' && wordlist.length >= 3) {
+          if (subdistrictTxt === '' && wordlist.length >= 2) {
             i = 0
             count++
             swapItem(wordlist)
@@ -438,21 +441,23 @@ module.exports = {
             soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
           }
         })
+
     }
 
+    
     let timeTaken = Date.now() - start;
     console.log("Total time taken : " + timeTaken + " milliseconds");
     return {
         name: nameTxt,
         houseNumber: houseNum,
-        addressDetail: wordlist.join(' '),
         moo: mooTxt,
         soi: soiTxt,
         road: roadTxt,
+        addressDetail: wordlist.join(' '),
         province: provinceTxt,
         district: removePrefix(districtTxt),
         subdistrict: removePrefix(subdistrictTxt),
-        postcode: postCode,
+        postCodeCode: postCode,
         phoneNumber: phone,
     }
   },

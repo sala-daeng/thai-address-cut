@@ -1,7 +1,10 @@
 //import
-let province = require('./data/province_3.json')
-let district = require('./data/city_4.json')
-let subdistrict = require('./data/tambon_1_1.json')
+const province = require('./data/province_3.json')
+const district = require('./data/city_4.json')
+const subdistrict = require('./data/tambon_1_1.json')
+const postcode_en = require('./data/postCode_en.json')
+const postcode_th = require('./data/postCode_th.json')
+
 
 function swapItem(arr) {
   [arr[arr.length - 1], arr[arr.length - 2]] = [arr[arr.length - 2],arr[arr.length - 1]]
@@ -148,9 +151,30 @@ function editDistance(str1, str2, lang) {
   }
   return costs[s2.length]
 }
+function findPostCode(provinceTxt, districtTxt, lang){
+  if(lang === 'EN'){
+    for (let i = 0;i < postcode_en.length; i++){
+      if(postcode_en[i].province === provinceTxt && postcode_en[i].district.toLowerCase().replace(/\s/g,'') === removePrefix(districtTxt).toLowerCase().replace(/\s/g,'') ){
+        let postCode = postcode_en[i].zip
+        return postCode
+      }
+    }
+  }
+
+  if(lang === 'TH'){
+    for (let i = 0;i < postcode_th.length; i++){
+      if(postcode_th[i].province === provinceTxt && postcode_th[i].district === removePrefix(districtTxt)){
+        let postCode = postcode_th[i].zip
+        return postCode
+      }
+    }
+  }
+  return ''
+}
+
 function removePrefix(data){
   if(data != '' && data != undefined){
-    return data.replace(/^(khet)|^(เขต)/i, '').replace(/\*$/,'').trim()
+    return data.replace(/^(khet)|^(เขต)|^(ถนน)|^(ถ\.)|^(หมู่)|^(ม\.)|^(ซอย)|^(ซ\.)/i, '').replace(/\*$/,'').trim()
   }
   return ''
 }
@@ -208,7 +232,6 @@ module.exports = {
         remainingTxt = cleanData(remainingTxt,'EN')
         console.log('ENG')
         wordlist = remainingTxt.split(',').map((word) => word.trim())        
-
         //Addition Option
         wordlist.forEach((word) => {
           if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){
@@ -230,7 +253,7 @@ module.exports = {
           }
           if(/^(soi\.*)/i.test(word.toLowerCase())){
             soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
+            wordlist = removeItem(wordlist, soiTxt)            
             soiTxt = soiTxt.replace(/^(soi\.*)/i,'').trim()
           }
           else if( /^(s\.)/i.test(word.toLowerCase()) ){
@@ -320,48 +343,54 @@ module.exports = {
     
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
+
+        if(postCode === '' && provinceTxt != '' && districtTxt != ''){
+          postCode = findPostCode(provinceTxt, districtTxt, 'EN')
+        }
     }
     else{//------------------TH-------------------------
         remainingTxt = cleanData(remainingTxt,'TH')
         
         console.log('TH')
         //console.log(postCode)
-        wordlist = remainingTxt.split(' ').map((word) => word.trim())
 
         //Addition Option
-        wordlist.forEach((word) => {
-            
-          if(word.match(/(หมู่\s*\d+)|(ม.\d+)/i)){
-            [mooTxt] = word.match(/หมู่\s*\d+|(ม\.\d+)/i)
-            let indextTemp = wordlist.indexOf(word)
-            wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
-            word= wordlist[indextTemp].replace(mooTxt, '').trim()
-            mooTxt = mooTxt.replace(/หมู่\s*|(ม.)/i, '').trim()
+        const mooPattern = /(หมู่\s*\d+)|(ม\.\s*\d+)/
+        const mooMatched = remainingTxt.match(mooPattern)
+        
+        const soiPattern = /(ซอย\s*[\u0E00-\u0E7F]*\s*\d+)|(ซ\.\s*[\u0E00-\u0E7F]*\s*\d+)/
+        const subSoiPattern = /(แยก\s*\d+)/
+        const soiMatched = remainingTxt.match(soiPattern)
+
+        const roadPattern = /(ถนน\s*[\u0E00-\u0E7F]*\s*\d*)|(ถ\.\s*[\u0E00-\u0E7F]*\s*\d*)/
+        const roadMatched = remainingTxt.match(roadPattern)
+
+        if (mooMatched) {
+          [mooTxt] = mooMatched
+          remainingTxt = remainingTxt.replace(mooTxt, '').trim()
+        }
+
+        if (roadMatched) {
+          [roadTxt] = roadMatched
+          remainingTxt = remainingTxt.replace(roadTxt, '').trim()
+        }
+
+        if (soiMatched) {
+          [soiTxt] = soiMatched
+          remainingTxt = remainingTxt.replace(soiTxt, '').trim()
+
+          let temp = ''
+          const subSoiMatched = remainingTxt.match(subSoiPattern)
+          
+          if(subSoiMatched){
+            [temp] = subSoiMatched
+            soiTxt += ' '+temp
+            remainingTxt = remainingTxt.replace(temp, '').trim()
           }
 
-          if (/^(ถนน)/.test(word.toLowerCase())){
-            roadTxt = word
-            wordlist = removeItem(wordlist, roadTxt)
-            roadTxt = roadTxt.replace(/^(ถนน)/,'').trim()
-          }
-          else if(/^(ถ\.)/.test(word.toLowerCase()) ){
-            roadTxt = word
-            wordlist = removeItem(wordlist, roadTxt)
-            roadTxt = roadTxt.replace(/^(ถ\.)/,'').trim()
-          }
+        }
 
-          if(/^(ซอย)/.test(word)){
-            soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
-            soiTxt = soiTxt.replace(/^(ซอย)/,'').trim()
-          }
-          else if( /^(ซ\.)/.test(word.toLowerCase()) ){
-            soiTxt = word
-            wordlist = removeItem(wordlist, soiTxt)
-            soiTxt = soiTxt.replace(/^(ซ\.)/,'').trim()
-          }
-        })
-
+        wordlist = remainingTxt.split(' ').map((word) => word.trim())
         wordlist = wordlist.filter(
           (element) =>
             element != null &&
@@ -434,6 +463,9 @@ module.exports = {
         wordlist = removeItem(wordlist, districtTempTxt)
         wordlist = removeItem(wordlist, subdistrictTempTxt)
 
+        if(postCode === '' && provinceTxt != '' && districtTxt != ''){
+          postCode = findPostCode(provinceTxt, districtTxt, 'TH')
+        }
     }
 
     
@@ -443,13 +475,13 @@ module.exports = {
         name: nameTxt,
         houseNumber: houseNum,
         addressDetail: wordlist.join(' '),
-        moo: mooTxt,
-        soi: soiTxt,
-        road: roadTxt,
+        moo: removePrefix(mooTxt),
+        soi: removePrefix(soiTxt),
+        road: removePrefix(roadTxt),
         province: provinceTxt,
         district: removePrefix(districtTxt),
         subdistrict: removePrefix(subdistrictTxt),
-        postCodeCode: postCode,
+        postcode: postCode,
         phoneNumber: phone,
     }
   },

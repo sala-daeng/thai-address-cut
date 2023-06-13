@@ -14,9 +14,11 @@ function cleanData(txt,lang) {
     let newTxt = txt
     if(lang === 'EN'){
       newTxt = newTxt.replace(/(district|District|Tambol|Province|Khwang|Amphur|Khet|Tel|:|T\.|A\.|\b(thailand)$|\b(th)$)/gi, '')
+      
     }
     else{
       newTxt = newTxt.replace(/(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่)/g, '')
+      newTxt = newTxt.replace(/,/g,' ')
     }
     newTxt = newTxt.replace(/,+/g, ',')
     newTxt = newTxt.replace(/,$/, '')

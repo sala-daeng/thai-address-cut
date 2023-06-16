@@ -188,6 +188,7 @@ module.exports = {
     console.log(address)
     let remainingTxt = address
 
+    remainingTxt = remainingTxt.replace(/\n/g,',')
     const postPattern = /\b\d{5}\b/
     const postMatched = address.match(postPattern)
 
@@ -244,9 +245,7 @@ module.exports = {
     if(regexLang.test(remainingTxt)){//------------------EN-------------------------
         remainingTxt = cleanData(remainingTxt,'EN')
         console.log('ENG')
-
-        wordlist = remainingTxt.split(',').map((word) => word.trim())  
-        console.log(wordlist)      
+        wordlist = remainingTxt.split(',').map((word) => word.trim())      
         //Addition Option
         wordlist.forEach((word) => {
           if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){

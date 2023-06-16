@@ -12,18 +12,20 @@ function swapItem(arr) {
 }
 function cleanData(txt,lang) {
     let newTxt = txt
+    newTxt.replace(/\n/)
     if(lang === 'EN'){
       newTxt = newTxt.replace(/(district|District|Tambol|Province|Khwang|Amphur|Khet|Tel|:|T\.|A\.|\b(thailand)$|\b(th)$)/gi, '')
       
     }
     else{
-      newTxt = newTxt.replace(/(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่)/g, '')
+      newTxt = newTxt.replace(/(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่|ประเทศไทย$)/g, '')
       newTxt = newTxt.replace(/,/g,' ')
     }
     newTxt = newTxt.replace(/,+/g, ',')
     newTxt = newTxt.replace(/,$/, '')
+    newTxt = newTxt.replace('()', '')
     newTxt = newTxt.replace('\*','')
-  return newTxt
+  return newTxt.trim()
 }
 
 function removeItem(arr, keyword) {
@@ -176,7 +178,7 @@ function findPostCode(provinceTxt, districtTxt, lang){
 
 function removePrefix(data){
   if(data != '' && data != undefined){
-    return data.replace(/^(khet)|^(เขต)|^(ถนน)|^(ถ\.)|^(หมู่)|^(ม\.)|^(ซอย)|^(ซ\.)/i, '').replace(/\*$/,'').trim()
+    return data.replace(/^(khet)|^(เขต)|^(ถนน)|^(ถ\.)|^(หมู่)|^(ม\.)|^(ซอย)|^(ซ\.)|^(fl.)|(floor)|(ชั้น)|(f\/)|(\/f)/i, '').replace(/\*$/,'').trim()
   }
   return ''
 }
@@ -195,10 +197,14 @@ module.exports = {
     const houseNumPattern = /\b\d{1,4}\/\d{1,4}\b|(\b\d{2,4})\b/;
     const houseNumMatch = address.match(houseNumPattern)
 
+    const floorPattern = /(fl\.\s*\d)|(\d\w{2}\s*floor)|(\d\/f)|(f\/\d)|(ชั้น\s*\d)/i;
+    const floorMatch = address.match(floorPattern)
+
     let phone = ''
     let postCode = ''
     let houseNum = ''
     let nameTxt = ''
+    let floorTxt = ''
 
     if (postMatched) {
       [postCode] = postMatched
@@ -207,6 +213,11 @@ module.exports = {
     if (phoneMatched) {
       [phone] = phoneMatched
       remainingTxt = remainingTxt.replace(phone, '').trim()
+    }
+    if(floorMatch){
+      [floorTxt] = floorMatch
+      remainingTxt = remainingTxt.replace(floorTxt, '').trim()
+
     }
     if (houseNumMatch) {
       [houseNum] = houseNumMatch
@@ -233,7 +244,9 @@ module.exports = {
     if(regexLang.test(remainingTxt)){//------------------EN-------------------------
         remainingTxt = cleanData(remainingTxt,'EN')
         console.log('ENG')
-        wordlist = remainingTxt.split(',').map((word) => word.trim())        
+
+        wordlist = remainingTxt.split(',').map((word) => word.trim())  
+        console.log(wordlist)      
         //Addition Option
         wordlist.forEach((word) => {
           if(word.match(/(Moo\s*\d+)|(M.\d+)/i)){
@@ -475,6 +488,7 @@ module.exports = {
     console.log("Total time taken : " + timeTaken + " milliseconds");
     return {
         name: nameTxt,
+        floor: removePrefix(floorTxt).trim(),
         houseNumber: houseNum,
         addressDetail: wordlist.join(' '),
         moo: removePrefix(mooTxt),

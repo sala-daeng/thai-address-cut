@@ -19,7 +19,7 @@ function cleanData(txt, lang) {
     )
   } else {
     newTxt = newTxt.replace(
-      /(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่|ประเทศไทย$)/g,
+      /(เขต|แขวง|จังหวัด|อำเภอ|ตำบล|อ\.|ต\.|จ\.|โทร\.?|เบอร์|ที่อยู่|Tel|:|ประเทศไทย$)/g,
       ''
     )
     newTxt = newTxt.replace(/,/g, ' ')
@@ -84,7 +84,11 @@ function checkName(remainingTxt, isLineOne = false) {
 
 function removeItem(arr, keyword) {
   if (keyword != '') {
+    keyword = keyword.replace('(','\\(')
+    keyword = keyword.replace(')','\\)')
+    // console.log(keyword)
     const keyPattern = new RegExp(`^${keyword}$`, 'i')
+    // console.log(arr,keyPattern)
     return arr.filter((obj) => !keyPattern.test(obj))
   }
   return arr
@@ -245,348 +249,358 @@ function removePrefix(data) {
   }
   return ''
 }
+
 module.exports = {
   cut: (address, fullSearch = true) => {
-    let start = Date.now()
-    console.log(address)
-    let remainingTxt = address
-    let tempRemainTxt = ''
-
-    if (remainingTxt.includes('\n')) {
-      tempRemainTxt = remainingTxt.split('\n')[0]
-      remainingTxt = remainingTxt.replace(/\n/g, ',')
-    }
-    remainingTxt = remainingTxt.replace(/,,+/g, ',')
-    const postPattern = /\b\d{5}\b/
-    const postMatched = address.match(postPattern)
-
-    const phonePattern =
-      /((0\d{2})(\d{7}|-\d{7}|-\d{3}-\d{4})|(0\d{1})(\d{7}|-\d{7}|-\d{3}-\d{4}))/
-    const phoneMatched = address.match(phonePattern)
-
-    let phone = ''
-    let postCode = ''
-    let houseNum = ''
-    let nameTxt = ''
-    let floorTxt = ''
-
-    if (postMatched) {
-      [postCode] = postMatched
-      remainingTxt = remainingTxt.replace(postCode, '').trim()
-    }
-    if (phoneMatched) {
-      [phone] = phoneMatched
-      remainingTxt = remainingTxt.replace(phone, '').trim()
-    }
-
-    remainingTxt = remainingTxt.replace(/,,+/g, ',')
-    let checkN = null
-    if (tempRemainTxt != '') {
-      checkN = checkName(tempRemainTxt, true)
-      nameTxt = checkN.nameTxt
-    }
-    checkN = checkName(remainingTxt)
-
-    if (nameTxt === '') {
-      nameTxt = checkN.nameTxt
-    }
-    floorTxt = checkN.floorTxt
-    houseNum = checkN.houseNumTxt
-
-    remainingTxt = remainingTxt.replace(nameTxt, '').trim()
-    remainingTxt = remainingTxt.replace(floorTxt, '').trim()
-    remainingTxt = remainingTxt.replace(houseNum, '')
-
-    const regexLang = RegExp(/^[!@#$%\s\^&\*\(\)_+=\[\]\\\{\}|;\':\"\,-\.\/a-zA-Z0-9]+$/)
-
-    let provinceTxt = ''
-    let districtTxt = ''
-    let subdistrictTxt = ''
-    let roadTxt = ''
-    let soiTxt = ''
-    let mooTxt = ''
-
-    let provinceValue
-    let districtValue
-    let subdistrictValue
-
-    let wordlist = []
-
-    if (regexLang.test(remainingTxt)) {
-      //------------------EN-------------------------
-      remainingTxt = cleanData(remainingTxt, 'EN')
-      console.log('ENG')
-
-      wordlist = remainingTxt.split(',').map((word) => word.trim())
-      //Addition Option
-      wordlist.forEach((word) => {
-        if (word.match(/(Moo\s*\d+)|(M.\d+)/i)) {
-          [mooTxt] = word.match(/Moo\s*\d+|(M.\d+)/i)
-          let indextTemp = wordlist.indexOf(word)
-          wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
-          word = wordlist[indextTemp].replace(mooTxt, '').trim()
-          mooTxt = mooTxt.replace(/Moo\s*|(M.)/i, '').trim()
-        }
-        if (/(rd)$/i.test(word.toLowerCase())) {
-          roadTxt = word
-          wordlist = removeItem(wordlist, roadTxt)
-          roadTxt = roadTxt.replace(/(rd)$/i, '').trim()
-        } else if (/(road)$/i.test(word.toLowerCase())) {
-          roadTxt = word
-          wordlist = removeItem(wordlist, roadTxt)
-          roadTxt = roadTxt.replace(/(road)$/i, '').trim()
-        }
-        if (/^(soi\.*)/i.test(word.toLowerCase())) {
-          soiTxt = word
-          wordlist = removeItem(wordlist, soiTxt)
-          soiTxt = soiTxt.replace(/^(soi\.*)/i, '').trim()
-        } else if (/^(s\.)/i.test(word.toLowerCase())) {
-          soiTxt = word
-          wordlist = removeItem(wordlist, soiTxt)
-          soiTxt = soiTxt.replace(/^(s\.)/i, '').trim()
-        }
-      })
-
-      wordlist = wordlist.filter(
-        (element) =>
-          element != null && element !== undefined && element !== '' && element != '.'
-      )
-      provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'EN')
-
-      //province search
-      let provinceTempTxt = ''
-      if (provinceValue) {
-        provinceTxt = getKeyByValue(province, provinceValue, 'EN')
-        provinceTempTxt = wordlist[wordlist.length - 1]
+    try{
+      
+      let start = Date.now()
+      console.log(address)
+      let remainingTxt = address
+      let tempRemainTxt = ''
+  
+      if (remainingTxt.includes('\n')) {
+        tempRemainTxt = remainingTxt.split('\n')[0]
+        remainingTxt = remainingTxt.replace(/\n/g, ',')
       }
-      //find similar
-      else if (provinceValue === undefined && fullSearch) {
-        provinceTxt = findSimilarObj(province, wordlist[wordlist.length - 1], 'EN')
-        provinceValue = getValueByKey(province, provinceTxt, 'EN')
-        provinceTempTxt = wordlist[wordlist.length - 1]
+      remainingTxt = remainingTxt.replace(/,,+/g, ',')
+      const postPattern = /\b\d{5}\b/
+      const postMatched = address.match(postPattern)
+  
+      
+  
+      const phonePattern =
+        /((0\d{2})(\d{7}|-\d{7}|-\d{3}-\d{4})|(0\d{1})(\d{7}|-\d{7}|-\d{3}-\d{4}))/
+      const phoneMatched = address.match(phonePattern)
+   
+      let phone = ''
+      let postCode = ''
+      let houseNum = ''
+      let nameTxt = ''
+      let floorTxt = ''
+  
+      if (postMatched) {
+        [postCode] = postMatched
+        remainingTxt = remainingTxt.replace(postCode, '').trim()
       }
-      //find from postcode
-      if (provinceValue === undefined && postCode != '') {
-        provinceValue = postCode.slice(0, 2)
-        provinceTxt = getKeyByValue(province, provinceValue, 'EN')
-        provinceTempTxt = ''
+      if (phoneMatched) {
+        [phone] = phoneMatched
+        remainingTxt = remainingTxt.replace(phone, '').trim()
       }
-
-      wordlist = removeItem(wordlist, provinceTempTxt)
-      //console.log(wordlist)
-      console.log(provinceValue)
-
-      const regexMueng = /^(mueng|moang|meung|mueang)$/i
-      let districtTempTxt = ''
-      let subdistrictTempTxt = ''
-      let count = 1
-      for (let i = 0; i < 2 && count <= 2; i++) {
-        if (regexMueng.test(wordlist[wordlist.length - 1])) {
-          wordlist[wordlist.length - 1] =
-            wordlist[wordlist.length - 1].concat(provinceTxt)
-        }
-        districtValue = getValueByKey(
-          district[provinceValue],
-          wordlist[wordlist.length - 1],
-          'EN'
+  
+      remainingTxt = remainingTxt.replace(/,,+/g, ',')
+      let checkN = null
+      if (tempRemainTxt != '') {
+        checkN = checkName(tempRemainTxt, true)
+        nameTxt = checkN.nameTxt
+      }
+      checkN = checkName(remainingTxt)
+  
+      if (nameTxt === '') {
+        nameTxt = checkN.nameTxt
+      }
+      floorTxt = checkN.floorTxt
+      houseNum = checkN.houseNumTxt
+  
+      remainingTxt = remainingTxt.replace(nameTxt, '').trim()
+      remainingTxt = remainingTxt.replace(floorTxt, '').trim()
+      remainingTxt = remainingTxt.replace(houseNum, '')
+  
+      const regexLang = RegExp(/^[!@#$%\s\^&\*\(\)_+=\[\]\\\{\}|;\':\"\,-\.\/a-zA-Z0-9]+$/)
+  
+      let provinceTxt = ''
+      let districtTxt = ''
+      let subdistrictTxt = ''
+      let roadTxt = ''
+      let soiTxt = ''
+      let mooTxt = ''
+  
+      let provinceValue
+      let districtValue
+      let subdistrictValue
+  
+      let wordlist = []
+  
+      if (regexLang.test(remainingTxt)) {
+        //------------------EN-------------------------
+        remainingTxt = cleanData(remainingTxt, 'EN')
+        console.log('ENG')
+  
+        wordlist = remainingTxt.split(',').map((word) => word.trim())
+        //Addition Option
+        wordlist.forEach((word) => {
+          if (word.match(/(Moo\s*\d+)|(M.\d+)/i)) {
+            [mooTxt] = word.match(/Moo\s*\d+|(M.\d+)/i)
+            let indextTemp = wordlist.indexOf(word)
+            wordlist[indextTemp] = wordlist[indextTemp].replace(mooTxt, '').trim()
+            word = wordlist[indextTemp].replace(mooTxt, '').trim()
+            mooTxt = mooTxt.replace(/Moo\s*|(M.)/i, '').trim()
+          }
+          if (/(rd)$/i.test(word.toLowerCase())) {
+            roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
+            roadTxt = roadTxt.replace(/(rd)$/i, '').trim()
+          } else if (/(road)$/i.test(word.toLowerCase())) {
+            roadTxt = word
+            wordlist = removeItem(wordlist, roadTxt)
+            roadTxt = roadTxt.replace(/(road)$/i, '').trim()
+          }
+          if (/^(soi\.*)/i.test(word.toLowerCase())) {
+            soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
+            soiTxt = soiTxt.replace(/^(soi\.*)/i, '').trim()
+          } else if (/^(s\.)/i.test(word.toLowerCase())) {
+            soiTxt = word
+            wordlist = removeItem(wordlist, soiTxt)
+            soiTxt = soiTxt.replace(/^(s\.)/i, '').trim()
+          }
+        })
+  
+        wordlist = wordlist.filter(
+          (element) =>
+            element != null && element !== undefined && element !== '' && element != '.'
         )
-        if (districtValue) {
-          districtTxt = wordlist[wordlist.length - 1]
-          districtTempTxt = districtTxt
-        } else if (districtValue === undefined && fullSearch) {
-          districtTxt = findSimilarObj(
+        provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'EN')
+  
+        //province search
+        let provinceTempTxt = ''
+        if (provinceValue) {
+          provinceTxt = getKeyByValue(province, provinceValue, 'EN')
+          provinceTempTxt = wordlist[wordlist.length - 1]
+        }
+        //find similar
+        else if (provinceValue === undefined && fullSearch) {
+          provinceTxt = findSimilarObj(province, wordlist[wordlist.length - 1], 'EN')
+          provinceValue = getValueByKey(province, provinceTxt, 'EN')
+          provinceTempTxt = wordlist[wordlist.length - 1]
+        }
+        //find from postcode
+        if (provinceValue === undefined && postCode != '') {
+          provinceValue = postCode.slice(0, 2)
+          provinceTxt = getKeyByValue(province, provinceValue, 'EN')
+          provinceTempTxt = ''
+        }
+  
+        wordlist = removeItem(wordlist, provinceTempTxt)
+        //console.log(wordlist)
+        console.log(provinceValue)
+  
+        const regexMueng = /^(mueng|moang|meung|mueang)$/i
+        let districtTempTxt = ''
+        let subdistrictTempTxt = ''
+        let count = 1
+        for (let i = 0; i < 2 && count <= 2; i++) {
+          if (regexMueng.test(wordlist[wordlist.length - 1])) {
+            wordlist[wordlist.length - 1] =
+              wordlist[wordlist.length - 1].concat(provinceTxt)
+          }
+          districtValue = getValueByKey(
             district[provinceValue],
             wordlist[wordlist.length - 1],
             'EN'
           )
-          districtTempTxt = wordlist[wordlist.length - 1]
-          districtValue = getValueByKey(district[provinceValue], districtTxt, 'EN')
-        }
-
-        if (wordlist.length >= 2 && districtTxt != '' && districtTxt != undefined) {
-          subdistrictValue = getValueByKey(
-            subdistrict[districtValue],
-            wordlist[wordlist.length - 2],
-            'EN'
-          )
-          if (subdistrictValue) {
-            subdistrictTxt = wordlist[wordlist.length - 2]
-            subdistrictTempTxt = subdistrictTxt
-            break
-          } else if (fullSearch) {
-            subdistrictTxt = findSimilarObj(
+          if (districtValue) {
+            districtTxt = wordlist[wordlist.length - 1]
+            districtTempTxt = districtTxt
+          } else if (districtValue === undefined && fullSearch) {
+            districtTxt = findSimilarObj(
+              district[provinceValue],
+              wordlist[wordlist.length - 1],
+              'EN'
+            )
+            districtTempTxt = wordlist[wordlist.length - 1]
+            districtValue = getValueByKey(district[provinceValue], districtTxt, 'EN')
+          }
+  
+          if (wordlist.length >= 2 && districtTxt != '' && districtTxt != undefined) {
+            subdistrictValue = getValueByKey(
               subdistrict[districtValue],
               wordlist[wordlist.length - 2],
               'EN'
             )
+            if (subdistrictValue) {
+              subdistrictTxt = wordlist[wordlist.length - 2]
+              subdistrictTempTxt = subdistrictTxt
+              break
+            } else if (fullSearch) {
+              subdistrictTxt = findSimilarObj(
+                subdistrict[districtValue],
+                wordlist[wordlist.length - 2],
+                'EN'
+              )
+              subdistrictValue = getValueByKey(
+                subdistrict[districtValue],
+                subdistrictTxt,
+                'EN'
+              )
+              if (subdistrictValue === undefined) subdistrictTxt = ''
+              else {
+                subdistrictTempTxt = wordlist[wordlist.length - 2]
+                break
+              }
+            }
+          }
+  
+          if (subdistrictTxt === '' && wordlist.length >= 2) {
+            i = 0
+            count++
+            swapItem(wordlist)
+          }
+        }
+  
+        console.log(districtValue)
+        console.log(subdistrictValue)
+  
+        wordlist = removeItem(wordlist, districtTempTxt)
+        wordlist = removeItem(wordlist, subdistrictTempTxt)
+  
+        if (postCode === '' && provinceTxt != '' && districtTxt != '') {
+          postCode = findPostCode(provinceTxt, districtTxt, 'EN')
+        }
+      } else {
+        //------------------TH-------------------------
+        remainingTxt = cleanData(remainingTxt, 'TH')
+  
+        console.log('TH')
+        //console.log(postCode)
+  
+        //Addition Option
+        const parenPattern = '\\s*\\(?[^\\)]*\\)?\\b'
+        const mooPattern = /(หมู่\s*\d+)|(ม\.\s*\d+)/
+        const mooMatched = remainingTxt.match(mooPattern)      // const soiPattern = /(ซอย\s*[\u0E00-\u0E7F|-]*\s*\d+)|(ซ\.\s*[\u0E00-\u0E7F|-]*\s*\d+)/
+        // const soiPattern = /(ซอย|ซ\.)\s*[\u0E00-\u0E7F|-]*\s*\d+/
+        const soiPattern = /((ซอย|ซ\.)\s*[\u0E00-\u0E7F|-]+\s*\d+\s*\(+(ซอย|ซ\.)\s*[^\)]+\)+)|((ซอย|ซ\.)\s*[\u0E00-\u0E7F|-]+\s*\d+\s*)/
+        const subSoiPattern = /(แยก\s*\d+)/
+        const soiMatched = remainingTxt.match(soiPattern)
+  
+        const roadPattern = /(ถนน\s*[\u0E00-\u0E7F|-]*\s*\d*)|(ถ\.\s*[\u0E00-\u0E7F|-]*\s*\d*)/
+        const roadMatched = remainingTxt.match(roadPattern)
+  
+        if (mooMatched) {
+          [mooTxt] = mooMatched
+          remainingTxt = remainingTxt.replace(mooTxt, '').trim()
+        }
+  
+        if (roadMatched) {
+          [roadTxt] = roadMatched
+          remainingTxt = remainingTxt.replace(roadTxt, '').trim()
+        }
+  
+        if (soiMatched) {
+          [soiTxt] = soiMatched
+          remainingTxt = remainingTxt.replace(soiTxt, '').trim()
+  
+          let temp = ''
+          const subSoiMatched = remainingTxt.match(subSoiPattern)
+  
+          if (subSoiMatched) {
+            [temp] = subSoiMatched
+            soiTxt += ' ' + temp
+            remainingTxt = remainingTxt.replace(temp, '').trim()
+          }
+        }
+  
+        wordlist = remainingTxt.split(' ').map((word) => word.trim())
+        wordlist = wordlist.filter(
+          (element) =>
+            element != null && element !== undefined && element !== '' && element != '.'
+        )
+  
+        provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'TH')
+  
+        //province search
+        let provinceTempTxt = ''
+        if (provinceValue) {
+          provinceTxt = getKeyByValue(province, provinceValue, 'TH')
+          provinceTempTxt = wordlist[wordlist.length - 1]
+        }
+        //find similar
+        else if (provinceValue === undefined && fullSearch) {
+          provinceTxt = findSimilarObj(province, wordlist[wordlist.length - 1], 'TH')
+          provinceValue = getValueByKey(province, provinceTxt, 'TH')
+          provinceTempTxt = wordlist[wordlist.length - 1]
+        }
+        //find from postcode
+        if (provinceValue === undefined && postCode != '') {
+          provinceValue = postCode.slice(0, 2)
+          provinceTxt = getKeyByValue(province, provinceValue, 'TH')
+          provinceTempTxt = ''
+        }
+  
+        wordlist = removeItem(wordlist, provinceTempTxt)
+        //console.log(wordlist)
+        console.log(provinceValue)
+  
+        const regexMueng = /^เมือง$/
+        let districtTempTxt = ''
+        let subdistrictTempTxt = ''
+        let count = 1
+        for (let i = 0; i < 2 && count <= 2; i++) {
+          if (regexMueng.test(wordlist[wordlist.length - 1])) {
+            wordlist[wordlist.length - 1] =
+              wordlist[wordlist.length - 1].concat(provinceTxt)
+          }
+          districtValue = getValueByKey(
+            district[provinceValue],
+            wordlist[wordlist.length - 1],
+            'TH'
+          )
+  
+          if (districtValue) {
+            districtTxt = wordlist[wordlist.length - 1]
+            districtTempTxt = districtTxt
+          }
+  
+          if (wordlist.length >= 2 && districtTxt != '') {
             subdistrictValue = getValueByKey(
               subdistrict[districtValue],
-              subdistrictTxt,
-              'EN'
+              wordlist[wordlist.length - 2],
+              'TH'
             )
-            if (subdistrictValue === undefined) subdistrictTxt = ''
-            else {
-              subdistrictTempTxt = wordlist[wordlist.length - 2]
+            if (subdistrictValue) {
+              subdistrictTxt = wordlist[wordlist.length - 2]
+              subdistrictTempTxt = subdistrictTxt
               break
             }
           }
-        }
-
-        if (subdistrictTxt === '' && wordlist.length >= 2) {
-          i = 0
-          count++
-          swapItem(wordlist)
-        }
-      }
-
-      console.log(districtValue)
-      console.log(subdistrictValue)
-
-      wordlist = removeItem(wordlist, districtTempTxt)
-      wordlist = removeItem(wordlist, subdistrictTempTxt)
-
-      if (postCode === '' && provinceTxt != '' && districtTxt != '') {
-        postCode = findPostCode(provinceTxt, districtTxt, 'EN')
-      }
-    } else {
-      //------------------TH-------------------------
-      remainingTxt = cleanData(remainingTxt, 'TH')
-
-      console.log('TH')
-      //console.log(postCode)
-
-      //Addition Option
-      const mooPattern = /(หมู่\s*\d+)|(ม\.\s*\d+)/
-      const mooMatched = remainingTxt.match(mooPattern)
-
-      const soiPattern = /(ซอย\s*[\u0E00-\u0E7F]*\s*\d+)|(ซ\.\s*[\u0E00-\u0E7F]*\s*\d+)/
-      const subSoiPattern = /(แยก\s*\d+)/
-      const soiMatched = remainingTxt.match(soiPattern)
-
-      const roadPattern = /(ถนน\s*[\u0E00-\u0E7F]*\s*\d*)|(ถ\.\s*[\u0E00-\u0E7F]*\s*\d*)/
-      const roadMatched = remainingTxt.match(roadPattern)
-
-      if (mooMatched) {
-        [mooTxt] = mooMatched
-        remainingTxt = remainingTxt.replace(mooTxt, '').trim()
-      }
-
-      if (roadMatched) {
-        [roadTxt] = roadMatched
-        remainingTxt = remainingTxt.replace(roadTxt, '').trim()
-      }
-
-      if (soiMatched) {
-        [soiTxt] = soiMatched
-        remainingTxt = remainingTxt.replace(soiTxt, '').trim()
-
-        let temp = ''
-        const subSoiMatched = remainingTxt.match(subSoiPattern)
-
-        if (subSoiMatched) {
-          [temp] = subSoiMatched
-          soiTxt += ' ' + temp
-          remainingTxt = remainingTxt.replace(temp, '').trim()
-        }
-      }
-
-      wordlist = remainingTxt.split(' ').map((word) => word.trim())
-      wordlist = wordlist.filter(
-        (element) =>
-          element != null && element !== undefined && element !== '' && element != '.'
-      )
-
-      provinceValue = getValueByKey(province, wordlist[wordlist.length - 1], 'TH')
-
-      //province search
-      let provinceTempTxt = ''
-      if (provinceValue) {
-        provinceTxt = getKeyByValue(province, provinceValue, 'TH')
-        provinceTempTxt = wordlist[wordlist.length - 1]
-      }
-      //find similar
-      else if (provinceValue === undefined && fullSearch) {
-        provinceTxt = findSimilarObj(province, wordlist[wordlist.length - 1], 'TH')
-        provinceValue = getValueByKey(province, provinceTxt, 'TH')
-        provinceTempTxt = wordlist[wordlist.length - 1]
-      }
-      //find from postcode
-      if (provinceValue === undefined && postCode != '') {
-        provinceValue = postCode.slice(0, 2)
-        provinceTxt = getKeyByValue(province, provinceValue, 'TH')
-        provinceTempTxt = ''
-      }
-
-      wordlist = removeItem(wordlist, provinceTempTxt)
-      //console.log(wordlist)
-      console.log(provinceValue)
-
-      const regexMueng = /^เมือง$/
-      let districtTempTxt = ''
-      let subdistrictTempTxt = ''
-      let count = 1
-      for (let i = 0; i < 2 && count <= 2; i++) {
-        if (regexMueng.test(wordlist[wordlist.length - 1])) {
-          wordlist[wordlist.length - 1] =
-            wordlist[wordlist.length - 1].concat(provinceTxt)
-        }
-        districtValue = getValueByKey(
-          district[provinceValue],
-          wordlist[wordlist.length - 1],
-          'TH'
-        )
-
-        if (districtValue) {
-          districtTxt = wordlist[wordlist.length - 1]
-          districtTempTxt = districtTxt
-        }
-
-        if (wordlist.length >= 2 && districtTxt != '') {
-          subdistrictValue = getValueByKey(
-            subdistrict[districtValue],
-            wordlist[wordlist.length - 2],
-            'TH'
-          )
-          if (subdistrictValue) {
-            subdistrictTxt = wordlist[wordlist.length - 2]
-            subdistrictTempTxt = subdistrictTxt
-            break
+  
+          if (subdistrictTxt === '' && wordlist.length >= 2) {
+            i = 0
+            count++
+            swapItem(wordlist)
           }
         }
-
-        if (subdistrictTxt === '' && wordlist.length >= 2) {
-          i = 0
-          count++
-          swapItem(wordlist)
+  
+        console.log(districtValue)
+        console.log(subdistrictValue)
+  
+        wordlist = removeItem(wordlist, districtTempTxt)
+        wordlist = removeItem(wordlist, subdistrictTempTxt)
+  
+        if (postCode === '' && provinceTxt != '' && districtTxt != '') {
+          postCode = findPostCode(provinceTxt, districtTxt, 'TH')
         }
       }
-
-      console.log(districtValue)
-      console.log(subdistrictValue)
-
-      wordlist = removeItem(wordlist, districtTempTxt)
-      wordlist = removeItem(wordlist, subdistrictTempTxt)
-
-      if (postCode === '' && provinceTxt != '' && districtTxt != '') {
-        postCode = findPostCode(provinceTxt, districtTxt, 'TH')
+  
+      let timeTaken = Date.now() - start
+      console.log('Total time taken : ' + timeTaken + ' milliseconds')
+      return {
+        name: nameTxt,
+        floor: removePrefix(floorTxt).trim(),
+        houseNumber: houseNum,
+        addressDetail: wordlist.join(' '),
+        moo: removePrefix(mooTxt),
+        soi: removePrefix(soiTxt),
+        road: removePrefix(roadTxt),
+        province: provinceTxt,
+        district: removePrefix(districtTxt),
+        subdistrict: removePrefix(subdistrictTxt),
+        postcode: postCode,
+        phoneNumber: phone,
       }
     }
-
-    let timeTaken = Date.now() - start
-    console.log('Total time taken : ' + timeTaken + ' milliseconds')
-    return {
-      name: nameTxt,
-      floor: removePrefix(floorTxt).trim(),
-      houseNumber: houseNum,
-      addressDetail: wordlist.join(' '),
-      moo: removePrefix(mooTxt),
-      soi: removePrefix(soiTxt),
-      road: removePrefix(roadTxt),
-      province: provinceTxt,
-      district: removePrefix(districtTxt),
-      subdistrict: removePrefix(subdistrictTxt),
-      postcode: postCode,
-      phoneNumber: phone,
+    catch(err){
+      console.log(err)
     }
   },
 }
